@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { GeneralData } from './core/constants/general-data.constants';
 
 @Component({
@@ -13,7 +13,11 @@ export class AppComponent {
   teachersDCC: string[] = [];
   periodsDCC: string[] = [];
   titles: string[] = ['MD', 'PhD', 'MSc'];
-  sections: string[] = ['M10', 'Q3', 'S2'];
+  maxNumSect = {
+    'M': 10,
+    'Q': 3,
+    'S': 2
+  }
   selected = 'Select an option';
   course: string = "";
   teacher: string = "";
@@ -39,6 +43,10 @@ export class AppComponent {
       teacher: ['MD Xavi Puig Gaudí', Validators.required],
       period: ['2022M10', Validators.required],
       students: ['1000', Validators.required],
+      selectCourse: ['', Validators.required],
+      selectTeacher: ['', Validators.required],
+      selectPeriod: ['', Validators.required],
+      codeGenerated: [''],
     });
   }
 
@@ -46,17 +54,16 @@ export class AppComponent {
     return this.form.controls;
   }
 
-  selectCourse(event: any) {
-    this.course = event.target.value;
-
+  selectCourse() {
+    this.course = this.form.controls["selectCourse"].value;
   }
 
-  selectTeacher(event: any) {
-    this.teacher = event.target.value;
+  selectTeacher() {
+    this.teacher = this.form.controls["selectTeacher"].value;
   }
 
-  selectPeriod(event: any) {
-    this.period = event.target.value;
+  selectPeriod() {
+    this.period = this.form.controls["selectPeriod"].value;
   }
 
   addCourse() {
@@ -69,7 +76,7 @@ export class AppComponent {
     let course: string = this.form.controls["course"].value.toUpperCase();
     let preposition: string = course.slice(0, 3);
     let numberCourse = Number(course.slice(3, 5));
-    if (!isNaN(numberCourse) && preposition === "DCC" && !this.coursesDCC.includes(course)) {
+    if (!isNaN(numberCourse) && numberCourse >= 0 && preposition === "DCC" && !this.coursesDCC.includes(course)) {
       return false;
     }
     return true;
@@ -84,7 +91,8 @@ export class AppComponent {
   validTeacher(): boolean {
     let teacher: string = this.form.controls["teacher"].value;
     let title = teacher.split(" ")[0];
-    if (this.titles.includes(title) && !this.teachersDCC.includes(teacher) && teacher.length > 1) {
+    
+    if (this.titles.includes(title) && !this.titles.includes(teacher.trim()) && !this.teachersDCC.includes(teacher) && teacher.length > 1) {
       return false;
     }
     return true;
@@ -92,6 +100,8 @@ export class AppComponent {
 
   addPeriod() {
     let period: string = this.form.controls["period"].value;
+    console.log(period.length);
+    
     this.periodsDCC.push(period);
     this.form.controls["period"].setValue("");
   }
@@ -102,9 +112,10 @@ export class AppComponent {
     let minDate = date - 1;
     let maxDate = date + 1;
     let yearEntered = Number(period.slice(0, 4));
-    let section = period.slice(4, period.length);
+    let section = period.substring(4, 5);
+    let numSect = Number(period.substring(5, period.length));
 
-    if (yearEntered >= minDate && yearEntered <= maxDate && !this.periodsDCC.includes(period) && this.sections.includes(section)) {
+    if (numSect > 0 && numSect <= this.maxNumSect[section] && yearEntered >= minDate && yearEntered <= maxDate && !this.periodsDCC.includes(period)) {
       return false;
     }
     return true;
@@ -114,12 +125,16 @@ export class AppComponent {
     let course = this.course;
     let teacher = this.teacher;
     let lastWordNames = teacher.split(" ").map(name => name.split("").slice(name.length - 1, name.length)).join("");
-
+    
     let reversedTitle = teacher.split(" ")[0].split("").reverse().join("");
     let period = this.period;
     let students: number = this.form.controls["students"].value;
+    let codes = "";
+
     for (let i = 1; i <= students; i++) {
-      console.log(`${course}${reversedTitle}${lastWordNames}-${period}${i.toString().padStart(students.toString().length, '0')}`);
+      codes = codes +`${course}${reversedTitle}${lastWordNames}-${period}${i.toString().padStart(students.toString().length, '0')}\n`;
     }
+    
+    this.form.controls["codeGenerated"].setValue(codes);
   }
 }

@@ -16,30 +16,30 @@
       <label for="period" type="text" class="label">Create CDD Periods</label>
       <button (click)="addPeriod()" [disabled]="validPeriod() || GetForm['period'].errors">add</button>
     </div>
-    <label for="course" type="text" class="label">Select CCD courses</label>
+    <label for="selectCourse" type="text" class="label">Select CCD courses</label>
     <div class="user-box">
-      <select [(ngModel)]="course" [ngModelOptions]="{standalone: true}" name="valueCheck"
-        (change)="selectCourse($event)">
+      <select formControlName="selectCourse" name="valueCheck"
+        (change)="selectCourse()">
         <option disabled>Select Any </option>
         <option *ngFor="let course of coursesDCC" [value]="course">
           {{ course }}
         </option>
       </select>
     </div>
-    <label for="teacher" type="text" class="label">Select CCD teacher</label>
+    <label for="selectTeacher" type="text" class="label">Select CCD teacher</label>
     <div class="user-box">
-      <select [(ngModel)]="teacher" [ngModelOptions]="{standalone: true}" name="valueCheck"
-        (change)="selectTeacher($event)">
+      <select formControlName="selectTeacher" name="valueCheck"
+        (change)="selectTeacher()">
         <option disabled>Select Any </option>
         <option *ngFor="let teacher of teachersDCC" [value]="teacher">
           {{ teacher }}
         </option>
       </select>
     </div>
-    <label for="period" type="text" class="label">Select period</label>
+    <label for="selectPeriod" type="text" class="label">Select period</label>
     <div class="user-box">
-      <select [(ngModel)]="period" [ngModelOptions]="{standalone: true}" name="valueCheck"
-        (change)="selectPeriod($event)">
+      <select formControlName="selectPeriod" name="valueCheck"
+        (change)="selectPeriod()">
         <option disabled>Select Any </option>
         <option *ngFor="let period of periodsDCC" [value]="period">
           {{ period }}
@@ -53,5 +53,6 @@
     <button (click)="generateCodes()">
       Generate
     </button>
+    <textarea formControlName="codeGenerated" class="input" cols="30" rows="10"></textarea>
   </form>
 </div>
