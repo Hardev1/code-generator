@@ -6,7 +6,6 @@
       <label for="course" type="text" class="label">Create CCD courses</label>
       <button (click)="addCourse()" [disabled]="isValidCourse() || GetForm['course'].errors">add</button>
     </div>
-    <!-- <app-course></app-course> -->
     <div class="user-box">
       <input formControlName="teacher" name="teacher">
       <label for="teacher" type="text" class="label">Create CCD teachers</label>
