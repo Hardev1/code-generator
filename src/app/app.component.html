@@ -2,24 +2,25 @@
   <h2>Code generator</h2>
   <form [formGroup]="form">
     <div class="user-box">
-      <input (keyup)="validCourse()" class="upper" formControlName="course" name="course">
+      <input (keyup)="isValidCourse()" class="upper" formControlName="course" name="course">
       <label for="course" type="text" class="label">Create CCD courses</label>
-      <button (click)="addCourse()" [disabled]="validCourse() || GetForm['course'].errors">add</button>
+      <button (click)="addCourse()" [disabled]="isValidCourse() || GetForm['course'].errors">add</button>
     </div>
+    <!-- <app-course></app-course> -->
     <div class="user-box">
       <input formControlName="teacher" name="teacher">
       <label for="teacher" type="text" class="label">Create CCD teachers</label>
-      <button (click)="addTeacher()" [disabled]="validTeacher() || GetForm['teacher'].errors">add</button>
+      <button (click)="addTeacher()" [disabled]="isValidTeacher() || GetForm['teacher'].errors">add</button>
     </div>
     <div class="user-box">
       <input formControlName="period" name="period">
       <label for="period" type="text" class="label">Create CDD Periods</label>
-      <button (click)="addPeriod()" [disabled]="validPeriod() || GetForm['period'].errors">add</button>
+      <button (click)="addPeriod()" [disabled]="isValidPeriod() || GetForm['period'].errors">add</button>
     </div>
     <label for="selectCourse" type="text" class="label">Select CCD courses</label>
     <div class="user-box">
       <select formControlName="selectCourse" name="valueCheck"
-        (change)="selectCourse()">
+        >
         <option disabled>Select Any </option>
         <option *ngFor="let course of coursesDCC" [value]="course">
           {{ course }}
@@ -29,7 +30,7 @@
     <label for="selectTeacher" type="text" class="label">Select CCD teacher</label>
     <div class="user-box">
       <select formControlName="selectTeacher" name="valueCheck"
-        (change)="selectTeacher()">
+        >
         <option disabled>Select Any </option>
         <option *ngFor="let teacher of teachersDCC" [value]="teacher">
           {{ teacher }}
@@ -39,7 +40,7 @@
     <label for="selectPeriod" type="text" class="label">Select period</label>
     <div class="user-box">
       <select formControlName="selectPeriod" name="valueCheck"
-        (change)="selectPeriod()">
+        >
         <option disabled>Select Any </option>
         <option *ngFor="let period of periodsDCC" [value]="period">
           {{ period }}
