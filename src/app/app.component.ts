@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { GeneralData } from './core/constants/general-data.constants';
+import { Course } from './modules/module-a/models/course.model';
 
 @Component({
   selector: 'app-root',
@@ -9,16 +10,16 @@ import { GeneralData } from './core/constants/general-data.constants';
 })
 export class AppComponent {
   form: FormGroup = new FormGroup({});
+  courses: Course[] = [];
   coursesDCC: string[] = [];
   teachersDCC: string[] = [];
   periodsDCC: string[] = [];
   titles: string[] = ['MD', 'PhD', 'MSc'];
-  sections: string[] = ['M10', 'Q3', 'S2'];
-  selected = 'Select an option';
-  course: string = "";
-  teacher: string = "";
-  period: string = "";
-  digits: boolean = true;
+  maxNumSect = {
+    'M': 10,
+    'Q': 3,
+    'S': 2
+  }
 
   constructor(
     private fb: FormBuilder,
@@ -39,6 +40,10 @@ export class AppComponent {
       teacher: ['MD Xavi Puig Gaudí', Validators.required],
       period: ['2022M10', Validators.required],
       students: ['1000', Validators.required],
+      selectCourse: ['', Validators.required],
+      selectTeacher: ['', Validators.required],
+      selectPeriod: ['', Validators.required],
+      codeGenerated: [''],
     });
   }
 
@@ -46,80 +51,67 @@ export class AppComponent {
     return this.form.controls;
   }
 
-  selectCourse(event: any) {
-    this.course = event.target.value;
-
-  }
-
-  selectTeacher(event: any) {
-    this.teacher = event.target.value;
-  }
-
-  selectPeriod(event: any) {
-    this.period = event.target.value;
-  }
-
   addCourse() {
     let course: string = this.form.controls["course"].value.toUpperCase();
-    this.coursesDCC.push(course);
+    let departOrFac: string = course.slice(0, 3);
+    let numberCourse = Number(course.slice(3, 5));
+    let courseObj = new Course(departOrFac, numberCourse);
+    this.courses.push(courseObj);
+    this.coursesDCC.push(`${courseObj.departOrFac}${courseObj.noCourse}`);
     this.form.controls["course"].setValue("");
   }
 
-  validCourse(): boolean {
+  isValidCourse(): boolean {
     let course: string = this.form.controls["course"].value.toUpperCase();
-    let preposition: string = course.slice(0, 3);
+    let departOrFac: string = course.slice(0, 3);
     let numberCourse = Number(course.slice(3, 5));
-    if (!isNaN(numberCourse) && preposition === "DCC" && !this.coursesDCC.includes(course)) {
-      return false;
-    }
-    return true;
+
+    return !(!isNaN(numberCourse) && numberCourse >= 0 && departOrFac === "DCC" 
+    && !this.coursesDCC.includes(course))
   }
 
+
+
   addTeacher() {
-    let teacher: string = this.form.controls["teacher"].value;
+    const { teacher } = this.form.value;
     this.teachersDCC.push(teacher);
     this.form.controls["teacher"].setValue("");
   }
 
-  validTeacher(): boolean {
-    let teacher: string = this.form.controls["teacher"].value;
+  isValidTeacher(): boolean {
+    const { teacher } = this.form.value;
     let title = teacher.split(" ")[0];
-    if (this.titles.includes(title) && !this.teachersDCC.includes(teacher) && teacher.length > 1) {
-      return false;
-    }
-    return true;
+
+    return !(this.titles.includes(title) && !this.titles.includes(teacher.trim()) 
+    && !this.teachersDCC.includes(teacher) && teacher.length > 1)
   }
 
   addPeriod() {
-    let period: string = this.form.controls["period"].value;
+    const { period } = this.form.value;
     this.periodsDCC.push(period);
     this.form.controls["period"].setValue("");
   }
 
-  validPeriod(): boolean {
+  isValidPeriod(): boolean {
     let period: string = this.form.controls["period"].value.toUpperCase();
     let date = new Date().getFullYear();
-    let minDate = date - 1;
-    let maxDate = date + 1;
     let yearEntered = Number(period.slice(0, 4));
-    let section = period.slice(4, period.length);
-
-    if (yearEntered >= minDate && yearEntered <= maxDate && !this.periodsDCC.includes(period) && this.sections.includes(section)) {
-      return false;
-    }
-    return true;
+    let section = period.substring(4, 5);
+    let numSect = Number(period.substring(5, period.length));
+    return !(numSect > 0 && numSect <= this.maxNumSect[section] && yearEntered >= date-1 
+      && yearEntered <= date+1 && !this.periodsDCC.includes(period));
   }
 
   generateCodes() {
-    let course = this.course;
-    let teacher = this.teacher;
-    let lastWordNames = teacher.split(" ").map(name => name.split("").slice(name.length - 1, name.length)).join("");
-
+    const { selectCourse: course, selectPeriod: period, selectTeacher: teacher, students } = this.form.value;
+    let lastWordNames = teacher.split(" ").map((name: string) => name.split("")
+      .slice(name.length - 1, name.length)).join("");
     let reversedTitle = teacher.split(" ")[0].split("").reverse().join("");
-    let period = this.period;
-    let students: number = this.form.controls["students"].value;
+    let codes = "";
     for (let i = 1; i <= students; i++) {
-      console.log(`${course}${reversedTitle}${lastWordNames}-${period}${i.toString().padStart(students.toString().length, '0')}`);
+      codes = codes + `${course}${reversedTitle}${lastWordNames}-${period}${i.toString()
+        .padStart(students.toString().length, '0')}\n`;
     }
+    this.form.controls["codeGenerated"].setValue(codes);
   }
 }

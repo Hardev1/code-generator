@@ -1,0 +1,5 @@
+<div class="user-box">
+  <input (keyup)="validCourse()" class="upper" formControlName="course" name="course">
+  <label for="course" type="text" class="label">Create CCD courses</label>
+  <button (click)="addCourse()" [disabled]="validCourse() || GetForm['course'].errors">add</button>
+</div>
